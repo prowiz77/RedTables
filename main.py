@@ -24,7 +24,7 @@ def display_table_with_editing(df, current_index_highlighted, current_index_arro
             #highlighted_table += "\033[1;37;42m" + line + "\033[0m\n"  # Grün hinterlegt
             highlighted_table += "\033[1;37;41m" + line + "\033[0m\n"  # Roter Hintergrund
         else:
-            highlighted_table += "\033[1;33m" + line + "\033[0m\n" # Orange Text
+            highlighted_table += "\033[1;36m" + line + "\033[0m\n" # Orange Text
 
     print_debug_output()
     print(highlighted_table)
