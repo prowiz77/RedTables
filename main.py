@@ -6,18 +6,46 @@ from pynput import keyboard
 
 CSV_FILE_PATH = '/home/kali/Programming/data.csv'
 
+ascii_art_text = """
+                                                            
+                                ..::--==:.:                 
+                          .::-=++**+==-.:*:   :-.           
+                      .::==+****++=-::..*+:.:.         .    
+                   .:-=+******+-:.   : .==-:.:          :   
+                 :==+******+-:+      :.    ..           :   
+               :++**+++==++:   :.       ...           ..    
+      .++=-. .=***+=-:.   .::...:--:. ..           ...      
+      .***++++**+-.       ..:-..... ..         ....         
+       ****++*+-.    .-=******-   ..      ....              
+       -*****+:    .********=. .:.                          
+        =***+:       .::::. .:.                             
+          =*-              --                               
+          =+           :=-==-.                @Red Tables              
+          :=         ::=*+=+=:                 by prowiz77            
+     .     +       .-   .--+=                               
+    .      .:      ==:   -***:                              
+   :        ..    ..:::.=****.                              
+   .          ..=- .     ***=                               
+   .            +**+=.. :****.                              
+   ..           .++.   :-+****-                             
+     ....                :=****:                            
+                           :+**=                            
+                             :-:                            
+
+"""
+
 def display_table_with_editing(df, current_index_highlighted, current_index_arrow):
-    os.system('clear' if os.name == 'posix' else 'cls')  
+    os.system('clear' if os.name == 'posix' else 'cls')  # Clear console screen
 
-    
+    # Hinzufügen der Spalten am Ende mit ">" für die aktuelle Zeile und "<" für die markierte Zeile
     df['Arrow'] = ['>' if i == current_index_arrow else '' for i in range(len(df))]
-    
+    #df['Highlighted'] = ['<' if i == current_index_highlighted else '' for i in range(len(df))]
 
-    
+    # Tabellarische Anzeige mit den zusätzlichen Spalten
     columns_order = ['Name', 'Tag', 'Amount', 'Updated', 'Active']
     table = tabulate(df[columns_order], headers='keys', tablefmt='fancy_grid', showindex=False)
 
-    
+    # Farbliche Hervorhebung der Zeile mit '<'
     highlighted_table = ""
     for i, line in enumerate(table.split('\n')):
         if i == current_index_highlighted + 3:
@@ -26,23 +54,24 @@ def display_table_with_editing(df, current_index_highlighted, current_index_arro
         else:
             highlighted_table += "\033[1;36m" + line + "\033[0m\n" # Orange Text
 
-    print_debug_output()
+    #print_debug_output()
+    print("\033[1;31m" + ascii_art_text + "\033[0m")
     print(highlighted_table)
     print("\nUse 'w' to go up, 's' to go down, 'Enter' to edit, 'q' to quit")
 
 def update_csv_row_red(csv_path, name_to_update):
     try:
-        
+        # Lese die CSV-Datei in ein Pandas DataFrame
         df = pd.read_csv(csv_path, header=None)
 
-        
+        # Überprüfe, ob der Name in der ersten Spalte gefunden wird
         mask = df[0].str.startswith(name_to_update)
 
         if mask.any():
-            
+            # Wenn der Name gefunden wurde, ändere den Wert in der letzten Spalte von '✅' zu '❌'
             df.loc[mask, len(df.columns) - 1] = '❌'
 
-            
+            # Speichere die aktualisierte DataFrame in der CSV-Datei
             df.to_csv(csv_path, header=False, index=False)
             print(f"Die Zeile mit dem Namen '{name_to_update}' wurde erfolgreich aktualisiert.")
         else:
@@ -53,17 +82,17 @@ def update_csv_row_red(csv_path, name_to_update):
 
 def update_csv_row_green(csv_path, name_to_update):
     try:
-        
+        # Lese die CSV-Datei in ein Pandas DataFrame
         df = pd.read_csv(csv_path, header=None)
 
-        
+        # Überprüfe, ob der Name in der ersten Spalte gefunden wird
         mask = df[0].str.startswith(name_to_update)
 
         if mask.any():
-            
+            # Wenn der Name gefunden wurde, ändere den Wert in der letzten Spalte von '✅' zu '❌'
             df.loc[mask, len(df.columns) - 1] = '✅'
 
-            
+            # Speichere die aktualisierte DataFrame in der CSV-Datei
             df.to_csv(csv_path, header=False, index=False)
             print(f"Die Zeile mit dem Namen '{name_to_update}' wurde erfolgreich aktualisiert.")
         else:
@@ -83,10 +112,10 @@ def print_debug_output():
 
 def main():
     try:
-        
+        # Specify column names
         column_names = ['Name', 'Tag', 'Amount', 'Updated', 'Active']
 
-        
+        # Read the CSV file into a Pandas DataFrame with specified column names
         df = pd.read_csv(CSV_FILE_PATH, names=column_names, header=None)
 
         current_index_highlighted = 0
@@ -98,10 +127,10 @@ def main():
             key = input()
             
             if key == 'q':
-                
+                # Speichern und beenden, wenn 'q' gedrückt wird
                 break
             elif key == ' ':
-               
+                # Enter key pressed, edit value
                 print("\nEditing 'Active' value...\n")
                 current_value = df.at[current_index_arrow, 'Active']
                 new_value = '❌' if current_value == '✅' else '✅'
