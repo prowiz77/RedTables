@@ -89,7 +89,7 @@ def get_project_path():
 
         table = tabulate(project_options, headers=[f'\033[94m#\033[0m', '\033[92mProject Name                                      \033[0m'], tablefmt="fancy_outline", showindex=False)
         print("\033[1;31m" + ascii_art_text + "\033[0m")
-        print("\033[1;31m" + table + "\033[0m")
+        print(table)
     else:
         print("No projects available.")
 
