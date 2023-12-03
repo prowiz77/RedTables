@@ -1,10 +1,8 @@
 import pandas as pd
 from tabulate import tabulate
 import os
-from pynput import keyboard
-
-
-CSV_FILE_PATH = '/home/kali/Programming/data.csv'
+import csv
+import shutil
 
 ascii_art_text = """
                                                             
@@ -34,42 +32,113 @@ ascii_art_text = """
 
 """
 
+def copy_csv_to_current_directory(source_path):
+    if not os.path.exists(source_path):
+        print(f"Error: The source file '{source_path}' does not exist.")
+        return None
+
+    file_name, file_extension = os.path.splitext(os.path.basename(source_path))
+
+    destination_name = f"{file_name}_data{file_extension}"
+    destination_path = os.path.join(os.getcwd(), destination_name)
+
+    try:
+        shutil.copy(source_path, destination_path)
+        print(f"File successfully copied to: {destination_path}")
+        return destination_path
+    except Exception as e:
+        print(f"An error occurred while copying the file: {e}")
+        return None
+
+def create_csv():
+    project_name = input("Enter the project name: ")
+    columns = input("Enter the column names separated by commas: ").split(',')
+    columns = ['Name', *columns, 'Status']
+    rows = []
+    file_name = f"{project_name}_data.csv"
+    project_path = os.path.abspath(file_name)
+    with open(file_name, mode='w', newline='') as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow(columns)
+        writer.writerows(rows)
+    
+    return project_path
+
+def get_project_path():
+    csv_files = [file for file in os.listdir() if file.endswith('_data.csv')]
+    
+    New = len(csv_files) + 1
+    APp = len(csv_files) + 2
+
+    print("\033[1;31m" + ascii_art_text + "\033[0m")
+    if len(csv_files) >= 1:
+        print("\033[1;34m" + "Available projects:" + "\033[0m")
+        for i, file in enumerate(csv_files, start=1):
+            print("\033[1;32m" + f"{i}." + "\033[0m" + "\033[1;37m" + f" {file[:-9]}" + "\033[0m")
+        print("\033[1;31m" + f"{New}. " + "\033[0m" + "\033[1;37m" + "new" + "\033[0m")
+        print("\033[1;31m" + f"{APp}. " + "\033[0m" + "\033[1;37m" + "Add Projekt path" + "\033[0m")
+    else:
+        print("\033[1;34m" + "Available projects:" + "\033[0m")
+        print("\033[1;31m" + "1. " + "\033[0m" + "\033[1;37m" + "new" + "\033[0m")
+        print("\033[1;31m" + "2. " + "\033[0m" + "\033[1;37m" + "Add Projekt path" + "\033[0m")
+
+    try:
+        print("")
+        selection = input("\033[1;31m" + "Select a project (enter the number): " + "\033[0m")
+
+        if selection.isdigit():
+            selection = int(selection)
+
+            if 1 <= selection <= len(csv_files):
+                return csv_files[selection - 1]
+            elif selection == New:
+                project_path = create_csv()
+                return project_path
+            elif selection == APp:
+                ptcsv = input("\033[1;31m" + "path: " + "\033[0m")
+                new_path = copy_csv_to_current_directory(ptcsv)
+                return new_path
+            else:
+                print("\033[1;31m" + "!!! " + "\033[0m" + "\033[1;33m" + "invalid" + "\033[0m" + "\033[1;31m" + "!!! " + "\033[0m")
+                return None
+        else:
+            print("\033[1;33m" + "Invalid entry. Please enter a number." + "\033[0m")
+            return None
+
+    except ValueError:
+        print("\033[1;33m" + "Invalid entry. Please enter a number." + "\033[0m")
+        return None
+
 def display_table_with_editing(df, current_index_highlighted, current_index_arrow):
     os.system('clear' if os.name == 'posix' else 'cls')  
 
-    df['Arrow'] = ['>' if i == current_index_arrow else '' for i in range(len(df))]
-    
 
-    
-    columns_order = ['Name', 'Tag', 'Amount', 'Updated', 'Active']
+    columns_order = df.columns.tolist()
     table = tabulate(df[columns_order], headers='keys', tablefmt='fancy_grid', showindex=False)
 
-    
     highlighted_table = ""
     for i, line in enumerate(table.split('\n')):
         if i == current_index_highlighted + 3:
-            
-            highlighted_table += "\033[1;37;41m" + line + "\033[0m\n"  
+            highlighted_table += "\033[1;37;41m" + line + "\033[0m\n" 
         else:
             highlighted_table += "\033[1;36m" + line + "\033[0m\n" 
 
     print("\033[1;31m" + ascii_art_text + "\033[0m")
     print(highlighted_table)
-    print("\nUse 'w' to go up, 's' to go down, 'Enter' to edit, 'q' to quit")
+    print("\nUse 'w' to go up, 's' to go down, 'Enter' to edit, 'a' to add, 'd' to delete, q' to quit")
 
 def update_csv_row_red(csv_path, name_to_update):
     try:
-        
+
         df = pd.read_csv(csv_path, header=None)
 
-        
+
         mask = df[0].str.startswith(name_to_update)
 
         if mask.any():
-            
+            #If the name was found, change the value in the last column from '✅' to '❌'
             df.loc[mask, len(df.columns) - 1] = '❌'
 
-            
             df.to_csv(csv_path, header=False, index=False)
             print(f"Die Zeile mit dem Namen '{name_to_update}' wurde erfolgreich aktualisiert.")
         else:
@@ -80,62 +149,115 @@ def update_csv_row_red(csv_path, name_to_update):
 
 def update_csv_row_green(csv_path, name_to_update):
     try:
-        
+
         df = pd.read_csv(csv_path, header=None)
 
-        
+
         mask = df[0].str.startswith(name_to_update)
 
         if mask.any():
-            
+            #If the name was found, change the value in the last column from '❌' to '✅'
             df.loc[mask, len(df.columns) - 1] = '✅'
 
             
             df.to_csv(csv_path, header=False, index=False)
-            print(f"Die Zeile mit dem Namen '{name_to_update}' wurde erfolgreich aktualisiert.")
+            print(f"The line with the name '{name_to_update}' has been successfully updated.")
         else:
-            print(f"Der Name '{name_to_update}' wurde nicht gefunden.")
+            print(f"The name '{name_to_update}' was not found.")
+
+    except Exception as e:
+        print(f"An error has occurred: {e}")
+
+def update_csv_row(csv_path, name_to_update, new_value):
+    try:
+        
+        df = pd.read_csv(csv_path)
+
+        
+        mask = df['Name'].str.startswith(name_to_update)
+
+        if mask.any():
+            # If the name was found, change the value in the last column from '✅' to '❌'
+            df.loc[mask, 'Status'] = new_value
+
+            
+            df.to_csv(csv_path, index=False)
+            print(f"The line with the name '{name_to_update}' has been successfully updated.")
+        else:
+            print(f"The name '{name_to_update}' was not found.")
 
     except Exception as e:
         print(f"Ein Fehler ist aufgetreten: {e}")
 
+def add_new_row(csv_path):
+    try:
+        df_header = pd.read_csv(csv_path, nrows=1)
+        columns_order = df_header.columns.tolist()
+
+        print("Column names:", columns_order)
+
+        df = pd.read_csv(csv_path)
+
+        new_row_data = {}
+        for column in columns_order:
+            if column == 'Status':
+                new_value = input(f"{column} ('n' for ❌, 'y' for ✅): ").strip().lower()
+                if new_value == 'n':
+                    new_value = '❌'
+                elif new_value == 'y':
+                    new_value = '✅'
+                else:
+                    print("Ungültige Eingabe. Verwende '❌' als Standardwert.")
+                    new_value = '❌'
+            else:
+                new_value = input(f"{column}: ")
+            new_row_data[column] = new_value
+
+        print("New row data:", new_row_data)
+
+        df = pd.concat([df, pd.DataFrame([new_row_data])], ignore_index=True)
+
+        df.to_csv(csv_path, index=False)
+        print("New row was successfully added.")
+
+        display_table_with_editing(df, 0, 0)
+
+    except Exception as e:
+        print(f"An error has occurred: {e}")
+
 def main():
     try:
         
-        column_names = ['Name', 'Tag', 'Amount', 'Updated', 'Active']
+        project_file = get_project_path()
 
-        
-        df = pd.read_csv(CSV_FILE_PATH, names=column_names, header=None)
-
-        current_index_highlighted = 0
-        current_index_arrow = 0
-
-        while True:
-            display_table_with_editing(df, current_index_highlighted, current_index_arrow)
-
-            key = input()
+        if project_file is not None:
             
-            if key == 'q':
-               
-                break
-            elif key == ' ':
-                
-                print("\nEditing 'Active' value...\n")
-                current_value = df.at[current_index_arrow, 'Active']
-                new_value = '❌' if current_value == '✅' else '✅'
-                df.at[current_index_arrow, 'Active'] = new_value
-                if current_value == '✅':
+            df = pd.read_csv(project_file)
+
+            current_index_highlighted = 0
+            current_index_arrow = 0
+
+            while True:
+                display_table_with_editing(df, current_index_highlighted, current_index_arrow)
+
+                key = input()
+                if key == 'q':
+                    break
+                elif key == ' ':
+                    print("\nEditing 'Status' value...\n")
+                    current_value = df.at[current_index_arrow, 'Status']
+                    new_value = '❌' if current_value == '✅' else '✅'
+                    df.at[current_index_arrow, 'Status'] = new_value
                     current_value_Name = df.at[current_index_arrow, 'Name']
-                    update_csv_row_red(CSV_FILE_PATH, current_value_Name)
-                else:
-                    current_value_Name = df.at[current_index_arrow, 'Name']
-                    update_csv_row_green(CSV_FILE_PATH, current_value_Name)
-            elif key == 'w':
-                current_index_highlighted = max(current_index_highlighted - 2, 0)
-                current_index_arrow = max(current_index_arrow - 1, 0)
-            elif key == '':
-                current_index_arrow = min(current_index_arrow + 1, len(df) -1)
-                current_index_highlighted = min(current_index_highlighted + 2, current_index_arrow*2)
+                    update_csv_row(project_file, current_value_Name, new_value)
+                elif key == 'w':
+                    current_index_highlighted = max(current_index_highlighted - 2, 0)
+                    current_index_arrow = max(current_index_arrow - 1, 0)
+                elif key == '':
+                    current_index_arrow = min(current_index_arrow + 1, len(df) - 1)
+                    current_index_highlighted = min(current_index_highlighted + 2, current_index_arrow * 2)
+                elif key == 'a':
+                    add_new_row(project_file)
 
     except Exception as e:
         print(f"An error occurred: {e}")
