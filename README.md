@@ -1,5 +1,5 @@
 
-![Logo](https://github.com/prowiz77/RedTables/blob/main/RedTables.png)
+![Logo](https://github.com/prowiz77/RedTables/blob/main/ignore/RedTables.png)
 
 
 # RedTables
