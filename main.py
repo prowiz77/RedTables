@@ -72,25 +72,29 @@ def create_csv():
 
 def get_project_path():
     csv_files = [file for file in os.listdir() if file.endswith('_data.csv')]
-    
+
+    project_options = []
+
     New = len(csv_files) + 1
     APp = len(csv_files) + 2
 
-    print("\033[1;31m" + ascii_art_text + "\033[0m")
     if len(csv_files) >= 1:
-        print("\033[1;34m" + "Available projects:" + "\033[0m")
         for i, file in enumerate(csv_files, start=1):
-            print("\033[1;32m" + f"{i}." + "\033[0m" + "\033[1;37m" + f" {file[:-9]}" + "\033[0m")
-        print("\033[1;31m" + f"{New}. " + "\033[0m" + "\033[1;37m" + "new" + "\033[0m")
-        print("\033[1;31m" + f"{APp}. " + "\033[0m" + "\033[1;37m" + "Add Projekt path" + "\033[0m")
+            project_options.append([f'\033[94m{i}\033[0m', f'\033[92m{file[:-9]}\033[0m'])
+
+        project_options.extend([
+            [f'\033[94m{New}\033[0m', '\033[93mnew\033[0m'],
+            [f'\033[94m{APp}\033[0m', '\033[96mAdd Projekt path\033[0m']
+        ])
+
+        table = tabulate(project_options, headers=[f'\033[94m#\033[0m', '\033[92mProject Name                                      \033[0m'], tablefmt="fancy_outline", showindex=False)
+        print("\033[1;31m" + ascii_art_text + "\033[0m")
+        print("\033[1;31m" + table + "\033[0m")
     else:
-        print("\033[1;34m" + "Available projects:" + "\033[0m")
-        print("\033[1;31m" + "1. " + "\033[0m" + "\033[1;37m" + "new" + "\033[0m")
-        print("\033[1;31m" + "2. " + "\033[0m" + "\033[1;37m" + "Add Projekt path" + "\033[0m")
+        print("No projects available.")
 
     try:
-        print("")
-        selection = input("\033[1;31m" + "Select a project (enter the number): " + "\033[0m")
+        selection = input("\033[1;31m" + "  > " + "\033[0m")
 
         if selection.isdigit():
             selection = int(selection)
@@ -101,19 +105,21 @@ def get_project_path():
                 project_path = create_csv()
                 return project_path
             elif selection == APp:
-                ptcsv = input("\033[1;31m" + "path: " + "\033[0m")
+                ptcsv = input("path: ")
                 new_path = copy_csv_to_current_directory(ptcsv)
                 return new_path
             else:
-                print("\033[1;31m" + "!!! " + "\033[0m" + "\033[1;33m" + "invalid" + "\033[0m" + "\033[1;31m" + "!!! " + "\033[0m")
+                print("!!! invalid !!!")
                 return None
         else:
-            print("\033[1;33m" + "Invalid entry. Please enter a number." + "\033[0m")
+            print("Invalid entry. Please enter a number.")
             return None
 
     except ValueError:
-        print("\033[1;33m" + "Invalid entry. Please enter a number." + "\033[0m")
+        print("Invalid entry. Please enter a number.")
         return None
+
+
 
 def display_table_with_editing(df, current_index_highlighted, current_index_arrow):
     os.system('clear' if os.name == 'posix' else 'cls')  
@@ -131,7 +137,7 @@ def display_table_with_editing(df, current_index_highlighted, current_index_arro
 
     print("\033[1;31m" + ascii_art_text + "\033[0m")
     print(highlighted_table)
-    print("\nUse 'w' to go up, 's' to go down, 'Enter' to edit, 'a' to add, 'd' to delete, q' to quit")
+    print("\033[1;31m" + "\nUse 'w' to go up, 's' to go down, 'Enter' to edit, 'a' to add, 'r' to return, q' to quit" + "\033[0m")
 
 def update_csv_row_red(csv_path, name_to_update):
     try:
@@ -231,8 +237,13 @@ def add_new_row(csv_path):
     except Exception as e:
         print(f"An error has occurred: {e}")
 
+def get_config_path():
+    current_directory = os.getcwd()
+    config_path = os.path.join(current_directory, 'config.json')
+    return config_path
+
 def update_json_value(key, new_value):
-    file_path = 'config.json'
+    file_path = get_config_path()
 
     try:
         with open(file_path, 'r') as file:
@@ -245,8 +256,7 @@ def update_json_value(key, new_value):
         print(f"An error occurred: {e}")
 
 def get_json_value(key):
-    file_path = 'config.json'
-
+    file_path = get_config_path()
     try:
         with open(file_path, 'r') as file:
             data = json.load(file)
@@ -264,6 +274,7 @@ def get_json_value(key):
         return None
 
 def main():
+    os.system('clear' if os.name == 'posix' else 'cls')
     try:
         key_to_get = 'start_menu'
         current_value = get_json_value(key_to_get)
@@ -289,7 +300,7 @@ def main():
                 key = input()
                 if key == 'q':
                     update_json_value('start_menu', 1)
-                    break
+                    sys.exit()
                 elif key == ' ':
                     print("\nEditing 'Status' value...\n")
                     current_value = df.at[current_index_arrow, 'Status']
@@ -308,10 +319,12 @@ def main():
                     update_json_value('start_menu', 0)
                     update_json_value('csv_file_path', project_file)
                     restart_program()
-
+                elif key == 'r':
+                    break
 
     except Exception as e:
         print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    main()
+    while True:
+        main()
