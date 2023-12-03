@@ -3,6 +3,9 @@ from tabulate import tabulate
 import os
 import csv
 import shutil
+import sys
+import subprocess
+import json
 
 ascii_art_text = """
                                                             
@@ -31,6 +34,9 @@ ascii_art_text = """
                              :-:                            
 
 """
+
+def restart_program():
+    os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
 
 def copy_csv_to_current_directory(source_path):
     if not os.path.exists(source_path):
@@ -225,10 +231,50 @@ def add_new_row(csv_path):
     except Exception as e:
         print(f"An error has occurred: {e}")
 
+def update_json_value(key, new_value):
+    file_path = 'config.json'
+
+    try:
+        with open(file_path, 'r') as file:
+            data = json.load(file)
+        data[key] = new_value
+        with open(file_path, 'w') as file:
+            json.dump(data, file, indent=4)
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+def get_json_value(key):
+    file_path = 'config.json'
+
+    try:
+        with open(file_path, 'r') as file:
+            data = json.load(file)
+
+        current_value = data.get(key)
+
+        if current_value is not None:
+            return current_value
+        else:
+            print(f"The key '{key}' does not exist in config.json.")
+            return None
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+
 def main():
     try:
-        
-        project_file = get_project_path()
+        key_to_get = 'start_menu'
+        current_value = get_json_value(key_to_get)
+
+        if current_value == 1:
+            project_file = get_project_path()
+        elif current_value == 0:
+            key_to_get2 = 'csv_file_path'
+            project_file = get_json_value(key_to_get2)
+        else:
+            raise ValueError("Unexpected value for 'start_menu' in the config file.")
 
         if project_file is not None:
             
@@ -242,6 +288,7 @@ def main():
 
                 key = input()
                 if key == 'q':
+                    update_json_value('start_menu', 1)
                     break
                 elif key == ' ':
                     print("\nEditing 'Status' value...\n")
@@ -258,6 +305,10 @@ def main():
                     current_index_highlighted = min(current_index_highlighted + 2, current_index_arrow * 2)
                 elif key == 'a':
                     add_new_row(project_file)
+                    update_json_value('start_menu', 0)
+                    update_json_value('csv_file_path', project_file)
+                    restart_program()
+
 
     except Exception as e:
         print(f"An error occurred: {e}")
