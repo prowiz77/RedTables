@@ -42,7 +42,8 @@ Insert gif or link to demo
     
 ## Screenshots
 
-![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
+![App Screenshot](https://github.com/prowiz77/RedTables/blob/main/Screenshot%20from%202023-12-03%2019-10-55.png)
+![App Screenshot](https://github.com/prowiz77/RedTables/blob/main/Screenshot%20from%202023-12-03%2019-11-27.png)
 
 
 ## Authors
