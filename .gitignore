@@ -1,4 +1,4 @@
 *.png
 *.gif
 *.md
-ignore/
+/ignore/
