@@ -111,6 +111,8 @@ def get_project_path():
             else:
                 print("!!! invalid !!!")
                 return None
+        elif selection == 'q':
+            sys.exit()        
         else:
             print("Invalid entry. Please enter a number.")
             return None
