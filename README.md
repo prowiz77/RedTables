@@ -16,7 +16,7 @@ RedTables is a command-line interface (CLI) program designed to streamline the p
 
 - **Tabulate Integration:** RedTables leverages the power of the tabulate library to create visually appealing tables in the command line. Enjoy clean and structured tables that enhance readability, making it easier to track and manage your tasks.
 ## Demo
-![demo](https://github.com/prowiz77/RedTables/blob/main/video.gif)
+![demo](https://github.com/prowiz77/RedTables/blob/main/ignore/video.gif)
 
 ## Installation
 
@@ -40,8 +40,8 @@ RedTables is a command-line interface (CLI) program designed to streamline the p
     
 ## Screenshots
 
-![App Screenshot](https://github.com/prowiz77/RedTables/blob/main/Screenshot%20from%202023-12-03%2019-10-55.png)
-![App Screenshot](https://github.com/prowiz77/RedTables/blob/main/Screenshot%20from%202023-12-03%2019-11-27.png)
+![App Screenshot](https://github.com/prowiz77/RedTables/blob/main/ignore/image1.png)
+![App Screenshot](https://github.com/prowiz77/RedTables/blob/main/ignore/image2.png)
 
 
 ## Authors
