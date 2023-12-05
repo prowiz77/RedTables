@@ -94,7 +94,15 @@ def get_project_path():
         print("\033[1;31m" + ascii_art_text + "\033[0m")
         print(table)
     else:
-        print("No projects available.")
+        project_options.extend([
+            [f'\033[94m{New}\033[0m', '\033[93mnew\033[0m'],
+            [f'\033[94m{APp}\033[0m', '\033[96mAdd Projekt path\033[0m'],
+            [f'\033[94m{UpD}\033[0m', '\033[91mUpdate Database\033[0m'],
+        ])
+
+        table = tabulate(project_options, headers=[f'\033[94m#\033[0m', '\033[92mProject Name                                      \033[0m'], tablefmt="fancy_outline", showindex=False)
+        print("\033[1;31m" + ascii_art_text + "\033[0m")
+        print(table)
 
     try:
         selection = input("\033[1;31m" + "  > " + "\033[0m")
