@@ -6,6 +6,7 @@ import shutil
 import sys
 import subprocess
 import json
+from menu import main2
 
 ascii_art_text = """
                                                             
@@ -77,6 +78,7 @@ def get_project_path():
 
     New = len(csv_files) + 1
     APp = len(csv_files) + 2
+    UpD = len(csv_files) + 3
 
     if len(csv_files) >= 1:
         for i, file in enumerate(csv_files, start=1):
@@ -84,7 +86,8 @@ def get_project_path():
 
         project_options.extend([
             [f'\033[94m{New}\033[0m', '\033[93mnew\033[0m'],
-            [f'\033[94m{APp}\033[0m', '\033[96mAdd Projekt path\033[0m']
+            [f'\033[94m{APp}\033[0m', '\033[96mAdd Projekt path\033[0m'],
+            [f'\033[94m{UpD}\033[0m', '\033[91mUpdate Database\033[0m'],
         ])
 
         table = tabulate(project_options, headers=[f'\033[94m#\033[0m', '\033[92mProject Name                                      \033[0m'], tablefmt="fancy_outline", showindex=False)
@@ -108,6 +111,9 @@ def get_project_path():
                 ptcsv = input("path: ")
                 new_path = copy_csv_to_current_directory(ptcsv)
                 return new_path
+            elif selection == UpD:
+                main2()
+                input("Drücke Enter, um fortzufahren...")
             else:
                 print("!!! invalid !!!")
                 return None
